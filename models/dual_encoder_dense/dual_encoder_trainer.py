@@ -94,7 +94,7 @@ def train_main(hparams):
                      autosave=False,
                      save_dir=hparams.test_tube_dir)
 
-    #exp.add_argparse_meta(hparams)
+    exp.add_argparse_meta(hparams)
     exp.save()
 
     # -----------------------
@@ -196,7 +196,7 @@ def train_main(hparams):
                 prec_at_2 = test_precision_at_k(S, feed_dict, k=2, sess=sess)
 
                 # update prog bar
-                exp.metrics.append({'tng loss': train_err, 'P@1': prec_at_1, 'P@2': prec_at_2})
+                exp.add_metric_row({'tng loss': train_err, 'P@1': prec_at_1, 'P@2': prec_at_2})
 
             nb_batches_served += 1
 
