@@ -1,16 +1,5 @@
 import os
 
-import numpy as np
-import pandas as pd
-import tensorflow as tf
-from tensorflow.contrib.keras.api.keras.utils import Progbar
-from test_tube.log import Experiment
-
-from dataset.ubuntu_dialogue_corpus import UDCDataset
-from models.dual_encoder_dense.model_dual_encoder_dense import dot_product_scoring
-
-os.environ["KERAS_BACKEND"] = 'tensorflow'
-
 import os
 
 import numpy as np
@@ -21,8 +10,6 @@ from test_tube.log import Experiment
 
 from dataset.ubuntu_dialogue_corpus import UDCDataset
 from models.dual_encoder_dense.model_dual_encoder_dense import dot_product_scoring
-
-os.environ["KERAS_BACKEND"] = 'tensorflow'
 
 
 def test_main(hparams):
@@ -69,6 +56,7 @@ def test_main(hparams):
     saver_all = tf.train.Saver(tf.global_variables(), max_to_keep=100)
     checkpoint_dir = os.path.join(hparams.model_save_dir, hparams.exp_name, 'epoch_{}/step_{}'.format(hparams.epoch,
                                                                                                       hparams.step))
+    print('checkpoint_dir %s', checkpoint_dir)
     ckpt = tf.train.get_checkpoint_state(checkpoint_dir)
     saver_all.restore(sess, ckpt.model_checkpoint_path)
     sess.run(tf.global_variables_initializer())
@@ -106,7 +94,7 @@ def train_main(hparams):
                      autosave=False,
                      save_dir=hparams.test_tube_dir)
 
-    exp.add_argparse_meta(hparams)
+    #exp.add_argparse_meta(hparams)
     exp.save()
 
     # -----------------------
@@ -196,6 +184,10 @@ def train_main(hparams):
 
             # OPT: run one step of optimization
             optimizer.run(session=sess, feed_dict=feed_dict)
+
+            if nb_batches_served % save_every_n_batches == 0:
+                save_model(saver=saver, hparams=hparams, sess=sess, epoch=epoch, step=nb_batches_served)
+
             # update loss metrics
             if nb_batches_served % eval_every_n_batches == 0:
                 # calculate test error
@@ -204,15 +196,13 @@ def train_main(hparams):
                 prec_at_2 = test_precision_at_k(S, feed_dict, k=2, sess=sess)
 
                 # update prog bar
-                exp.add_metric_row({'tng loss': train_err, 'P@1': prec_at_1, 'P@2': prec_at_2})
+                exp.metrics.append({'tng loss': train_err, 'P@1': prec_at_1, 'P@2': prec_at_2})
 
             nb_batches_served += 1
 
             progbar.add(n=len(batch_context), values=[('train_err', train_err),
                                                       ('P@1', prec_at_1),
                                                       ('P@2', prec_at_2)])
-            if nb_batches_served % save_every_n_batches == 0:
-                save_model(saver=saver, hparams=hparams, sess=sess, epoch=epoch, step=nb_batches_served)
 
         # ----------------------
         # END OF EPOCH PROCESSING
