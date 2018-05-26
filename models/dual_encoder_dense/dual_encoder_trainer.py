@@ -185,7 +185,7 @@ def train_main(hparams):
             # OPT: run one step of optimization
             optimizer.run(session=sess, feed_dict=feed_dict)
 
-            if nb_batches_served % save_every_n_batches == 0:
+            if save_every_n_batches != -1 and nb_batches_served % save_every_n_batches == 0:
                 save_model(saver=saver, hparams=hparams, sess=sess, epoch=epoch, step=nb_batches_served)
 
             # update loss metrics
