@@ -7,7 +7,11 @@ __pycache__/
 *.so
 
 src
-
+__MACOSX
+data.zip
+data/
+experiments/
+test_tube_data/
 # Distribution / packaging
 .Python
 env/
@@ -91,3 +95,4 @@ ENV/
 
 # Rope project settings
 .ropeproject
+test_tube_data/dual_conv_dense/
