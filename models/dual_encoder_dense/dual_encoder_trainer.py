@@ -59,7 +59,8 @@ def test_main(hparams):
     print('checkpoint_dir %s', checkpoint_dir)
     ckpt = tf.train.get_checkpoint_state(checkpoint_dir)
     saver_all.restore(sess, ckpt.model_checkpoint_path)
-    sess.run(tf.global_variables_initializer())
+    run_options = tf.RunOptions(report_tensor_allocations_upon_oom=True)
+    sess.run(tf.global_variables_initializer(),options=run_options)
 
     """Print the number of parameters."""
     total_parameters = 0
@@ -113,9 +114,9 @@ def train_main(hparams):
     # input_y holds our responses
     # labels holds the ground truth labels
     input_x = tf.placeholder(
-        dtype=tf.int32, shape=[hparams.batch_size, None], name='input_x')
+        dtype=tf.int32, shape=[hparams.batch_size, 256], name='input_x')
     input_y = tf.placeholder(
-        dtype=tf.int32, shape=[hparams.batch_size, None], name='input_y')
+        dtype=tf.int32, shape=[hparams.batch_size, 256], name='input_y')
 
     # ----------------------
     # EMBEDDING LAYER
