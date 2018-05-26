@@ -1,6 +1,5 @@
 import os
 
-import predict
 from models import dual_encoder_trainer
 from test_tube import HyperOptArgumentParser
 
